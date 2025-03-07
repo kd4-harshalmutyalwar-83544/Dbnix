@@ -2,8 +2,11 @@ import { Link, useNavigate } from "react-router-dom";
 import { useState } from "react";
 import {toast} from 'react-toastify'
 import Navbar from "../components/Navbar";
+import { loginUser } from "../services/Login";
 
 function Login() {
+
+    const navigate = useNavigate()
 const [username, setUsername] = useState('');
 const [password, setPassword] = useState('');
 const [isUsernameEmpty, setUsernameEmpty] = useState(false);
@@ -11,18 +14,28 @@ const [isPasswordEmpty, setPasswordEmpty] = useState(false);
 
 
 // navigation Hook
-const navigate = useNavigate()
 
-const onLogin = () => {
+
+const onLogin = async() => {
       if(username.length == 0) {
         toast.error('Please enter username');
       }  
-      if(password.length == 0) {
+      else if(password.length == 0) {
         toast.error('Please enter password');
       } else {
         // Api call and check successfull.
         //go to register register file
-        navigate('/register')
+        const result = await loginUser(username, password)
+        if(result != 'undefined') {
+            const token = result['token']
+            sessionStorage['token'] = token;
+            toast.success('Welcome ....')
+            navigate('/register')
+        }
+        else{
+            toast.error(result['error'])
+        }
+        // navigate('/register')
       }
 }
 
